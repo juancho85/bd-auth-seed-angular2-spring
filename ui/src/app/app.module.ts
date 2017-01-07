@@ -12,6 +12,7 @@ import {routing} from "./app.routing";
 import {AuthService} from "./shared/auth.service";
 import {AuthGuard} from "./shared/auth.guard";
 import { ProtectedComponent } from './protected/protected.component';
+import {DropdownDirective} from "./navigation/dropdown.directive";
 
 @NgModule({
   declarations: [
@@ -19,7 +20,8 @@ import { ProtectedComponent } from './protected/protected.component';
     SignInComponent,
     SignUpComponent,
     NavigationComponent,
-    ProtectedComponent
+    ProtectedComponent,
+    DropdownDirective
   ],
   imports: [
     BrowserModule,

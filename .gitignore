@@ -1,3 +1,9 @@
 /target/
 /.idea/
 /.mvn/
+/ui/dist/
+/src/main/resources/static/js/vendor.bundle.js
+/src/main/resources/static/js/main.bundle.js
+/src/main/resources/static/js/inline.bundle.js
+/src/main/resources/static/images/favicon.ico
+/src/main/resources/static/css/styles.bundle.css

@@ -8,6 +8,8 @@ import { AuthService } from "../shared/auth.service";
 })
 export class NavigationComponent implements OnInit {
 
+  userName: string = "user";
+
   constructor(private authService: AuthService) {}
 
   isAuth() {
@@ -19,6 +21,9 @@ export class NavigationComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.authService.userChanged.subscribe(
+      (user: any) => this.userName = user.userAuthentication.details.first_name
+    )
   }
 
 }

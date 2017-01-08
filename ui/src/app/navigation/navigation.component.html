@@ -18,7 +18,7 @@
         <li><a [routerLink]="['login']">Identificarse</a></li>
         <li *ngIf="isAuth()"><a [routerLink]="['protected']">Protected Area</a></li>
         <li *ngIf="isAuth()" class="dropdown" rbDropdown>
-          <a class="dropdown-toggle" role="button" aria-haspopup="true"  aria-expanded="false">User<span class="caret"></span></a>
+          <a class="dropdown-toggle" role="button" aria-haspopup="true"  aria-expanded="false">{{userName}}<span class="caret"></span></a>
           <ul class="dropdown-menu">
             <li ><a (click)="onLogout()" style="cursor: pointer;">Logout</a></li>
           </ul>

@@ -13,6 +13,8 @@ export class SignInComponent implements OnInit {
   error = false;
   errorMessage = '';
 
+  userName: string = '';
+
   constructor(private fb: FormBuilder, private authService: AuthService) {}
 
   onSignin() {
@@ -20,6 +22,8 @@ export class SignInComponent implements OnInit {
   }
 
   ngOnInit():any {
+    console.log("ngOnInit called");
+    this.authService.fetchUser();
     this.myForm = this.fb.group({
       email: ['', Validators.required],
       password: ['', Validators.required],

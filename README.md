@@ -1,13 +1,22 @@
-# simpleAuthAngular2AndSpring
+# Seed project - Angular 2 and SpringBoot facebook authentication
 
-A simple angular 2 application with basic DB authentication using Spring security.
+A seed project to have simple database authentication using Angular 2 and Spring boot
 
-Simple navigation and a protected route only shown when logged-in:
+###To start the ui server (port 4200)
+This allows to test the UI separately.
 
-User
-User: user
-Password: user
+On the /ui folder, run the angular-cli:
+```bash
+ng serve
+```
 
-Admin
-User: admin
-Password: admin
+###To start the backend server (port 8080)
+Run the Launcher class
+
+###To build the ui and copy it to the resources folder
+```bash
+npm run deploy
+```
+This allows the files to be copied to the directories where Springs allows them to be served
+
+

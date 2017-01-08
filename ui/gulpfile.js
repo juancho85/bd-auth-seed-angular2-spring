@@ -38,4 +38,4 @@ gulp.task('copy-js', function(){
 //     gulp.watch(CSS_PATHS.src, ['copy-css']);
 // });
 
-gulp.task('copy', ['copy-js', 'copy-html-replace-imports', 'copy-css']);
+gulp.task('deploy', ['copy-js', 'copy-html-replace-imports', 'copy-css']);

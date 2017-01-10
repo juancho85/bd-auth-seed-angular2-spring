@@ -8,6 +8,8 @@ import org.springframework.boot.autoconfigure.security.oauth2.resource.UserInfoT
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.oauth2.client.OAuth2ClientContext;
@@ -15,7 +17,11 @@ import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.security.oauth2.client.filter.OAuth2ClientAuthenticationProcessingFilter;
 import org.springframework.security.oauth2.client.filter.OAuth2ClientContextFilter;
 import org.springframework.security.oauth2.client.token.grant.code.AuthorizationCodeResourceDetails;
+import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableOAuth2Client;
+import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
+import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.filter.CompositeFilter;
@@ -26,6 +32,8 @@ import java.util.List;
 
 @SpringBootApplication
 @EnableOAuth2Client
+@EnableAuthorizationServer
+@Order(6)
 public class Launcher  extends WebSecurityConfigurerAdapter {
 
     @Autowired
@@ -37,14 +45,16 @@ public class Launcher  extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http
+        http.antMatcher("/**")
                 .authorizeRequests()
                 .antMatchers("/index.html", "/signup", "/login", "/logout", "/").permitAll()
                 .anyRequest().authenticated().and()
                 .logout().logoutSuccessUrl("/login").and()
                 .csrf()
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()).and()
-                .addFilterBefore(ssoFilter(), BasicAuthenticationFilter.class);;
+                .addFilterBefore(ssoFilter(), BasicAuthenticationFilter.class)
+                .exceptionHandling()
+                .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/"));
     }
 
 
@@ -52,47 +62,32 @@ public class Launcher  extends WebSecurityConfigurerAdapter {
     private Filter ssoFilter() {
         CompositeFilter filter = new CompositeFilter();
         List<Filter> filters = new ArrayList<>();
-
-        OAuth2ClientAuthenticationProcessingFilter facebookFilter = new OAuth2ClientAuthenticationProcessingFilter("/lgn/facebook");
-        OAuth2RestTemplate facebookTemplate = new OAuth2RestTemplate(facebook(), oauth2ClientContext);
-        facebookFilter.setRestTemplate(facebookTemplate);
-        facebookFilter.setTokenServices(new UserInfoTokenServices(facebookResource().getUserInfoUri(), facebook().getClientId()));
-        filters.add(facebookFilter);
-
-        OAuth2ClientAuthenticationProcessingFilter githubFilter = new OAuth2ClientAuthenticationProcessingFilter("/lgn/github");
-        OAuth2RestTemplate githubTemplate = new OAuth2RestTemplate(github(), oauth2ClientContext);
-        githubFilter.setRestTemplate(githubTemplate);
-        githubFilter.setTokenServices(new UserInfoTokenServices(githubResource().getUserInfoUri(), github().getClientId()));
-        filters.add(githubFilter);
-
+        filters.add(ssoFilter(facebook(), "/lgn/facebook"));
+        filters.add(ssoFilter(github(), "/lgn/github"));
         filter.setFilters(filters);
         return filter;
     }
 
-    @Bean
-    @ConfigurationProperties("facebook.client")
-    public AuthorizationCodeResourceDetails facebook() {
-        return new AuthorizationCodeResourceDetails();
+    private Filter ssoFilter(ClientResources client, String path) {
+        OAuth2ClientAuthenticationProcessingFilter filter = new OAuth2ClientAuthenticationProcessingFilter(path);
+        OAuth2RestTemplate template = new OAuth2RestTemplate(client.getClient(), oauth2ClientContext);
+        filter.setRestTemplate(template);
+        filter.setTokenServices(new UserInfoTokenServices(
+                client.getResource().getUserInfoUri(), client.getClient().getClientId()));
+        return filter;
     }
 
     @Bean
-    @ConfigurationProperties("facebook.resource")
-    public ResourceServerProperties facebookResource() {
-        return new ResourceServerProperties();
+    @ConfigurationProperties("github")
+    public ClientResources github() {
+        return new ClientResources();
     }
 
     @Bean
-    @ConfigurationProperties("github.client")
-    public AuthorizationCodeResourceDetails github() {
-        return new AuthorizationCodeResourceDetails();
+    @ConfigurationProperties("facebook")
+    public ClientResources facebook() {
+        return new ClientResources();
     }
-
-    @Bean
-    @ConfigurationProperties("github.resource")
-    public ResourceServerProperties githubResource() {
-        return new ResourceServerProperties();
-    }
-
     @Bean
     public FilterRegistrationBean oauth2ClientFilterRegistration(
             OAuth2ClientContextFilter filter) {
@@ -100,6 +95,21 @@ public class Launcher  extends WebSecurityConfigurerAdapter {
         registration.setFilter(filter);
         registration.setOrder(-100);
         return registration;
+    }
+
+    //this could also be a separate class
+    //@EnableResourceServer annotation creates a security filter with @Order(3)
+    //by moving the main application security to @Order(6) we ensure that the rule for "/me" takes precedence.
+    @Configuration
+    @EnableResourceServer
+    protected static class ResourceServerConfiguration
+            extends ResourceServerConfigurerAdapter {
+        @Override
+        public void configure(HttpSecurity http) throws Exception {
+            http
+                    .antMatcher("/me")
+                    .authorizeRequests().anyRequest().authenticated();
+        }
     }
 
 }

@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -25,8 +26,10 @@ public class WsController {
     }
 
     @CrossOrigin(origins = "http://localhost:4200")
-    @RequestMapping("/user")
-    public Principal user(Principal user) {
-        return user;
+    @RequestMapping({"/user", "/me"})
+    public Map<String, String> user(Principal principal) {
+        Map<String, String> map = new LinkedHashMap<>();
+        map.put("name", principal.getName());
+        return map;
     }
 }

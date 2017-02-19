@@ -4,7 +4,7 @@
   "license": "MIT",
   "angular-cli": {},
   "scripts": {
-    "bac": "ng build --aot && gulp copy"
+    "deploy": "ng build --aot && gulp copy"
   },
   "private": true,
   "dependencies": {

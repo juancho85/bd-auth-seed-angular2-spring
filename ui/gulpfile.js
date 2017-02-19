@@ -32,10 +32,4 @@ gulp.task('copy-js', function(){
     gulp.src([JS_PATHS.src]).pipe(gulp.dest(JS_DESTINATION));
 });
 
-// gulp.task('copy', function () {
-//     gulp.watch(JS_PATHS.src, ['copy-js']);
-//     gulp.watch(INDEX_PATH.src, ['copy-html']);
-//     gulp.watch(CSS_PATHS.src, ['copy-css']);
-// });
-
-gulp.task('copy', ['copy-js', 'copy-html-replace-imports', 'copy-css']);
+gulp.task('deploy', ['copy-js', 'copy-html-replace-imports', 'copy-css']);

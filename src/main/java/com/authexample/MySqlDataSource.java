@@ -5,6 +5,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import javax.sql.DataSource;
+
 /**
  * Created by juancho on 07/01/2017.
  */
@@ -13,7 +15,7 @@ public class MySqlDataSource {
 
     @Bean
     @ConfigurationProperties(prefix = "mysql.local.datasource")
-    public javax.sql.DataSource dataSource() {
+    public DataSource dataSource() {
         return DataSourceBuilder
                 .create()
                 .build();

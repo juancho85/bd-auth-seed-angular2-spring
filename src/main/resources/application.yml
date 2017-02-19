@@ -1,0 +1,12 @@
+#security.user.password=password
+security:
+  basic:
+    enabled: false
+#specify the url using the spring.datasource.url property or Spring Boot will attempt to auto-configure an embedded database
+mysql:
+  local:
+    datasource:
+      url: jdbc:mysql://localhost:3306/lingorange
+      username: juancho
+      password: guitarra
+      driver-class-name: com.mysql.jdbc.Driver
